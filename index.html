@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Katve+ DEM Fix</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<style>
+  :root{
+    --bg:#0b0f13;
+    --panel:#111820;
+    --line:#24313c;
+    --text:#e6edf3;
+    --muted:#8fa3b5;
+    --accent:#c6a15b;
+    --good:#49a86a;
+    --bad:#b65858;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+  #map{height:100vh;width:100vw;background:#cfd6dc}
+  .top{
+    position:absolute;top:6px;left:6px;right:6px;z-index:1000;
+    display:flex;justify-content:space-between;gap:6px;
+  }
+  .box,.panel{
+    background:rgba(17,24,32,.94);border:1px solid var(--line);border-radius:6px;
+    box-shadow:0 4px 12px rgba(0,0,0,.22);
+  }
+  .box{padding:6px 10px;font-size:14px}
+  .bottom{
+    position:absolute;left:6px;right:6px;bottom:6px;z-index:1000;
+    display:grid;gap:6px;
+  }
+  .panel{padding:10px}
+  .main{font-weight:800;font-size:1.02rem}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  .warn{color:var(--accent);margin-top:8px;font-weight:700}
+  .controls{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .controls button{
+    appearance:none;background:#0e141a;border:1px solid var(--line);color:var(--text);
+    padding:7px 10px;border-radius:4px;font-weight:700;cursor:pointer
+  }
+  .controls button.active{background:#1a232b}
+  .poi{width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid #000}
+  .notice,.status{
+    position:absolute;top:44px;left:6px;right:6px;z-index:1000;display:none;
+    border-radius:6px;padding:8px 10px;font-size:13px
+  }
+  .notice{background:#3a2714;border:1px solid #73522a;color:#f0d8a6}
+  .status{background:#13202a;border:1px solid #294353;color:#cde5f4}
+  .leaflet-control-attribution{background:rgba(17,24,32,.82)!important;color:#c7d0d8!important}
+  .leaflet-control-attribution a{color:#d5e4ef!important}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="top">
+  <div class="box">Katve+</div>
+  <div class="box" id="bearing">3200</div>
+</div>
+
+<div class="notice" id="notice"></div>
+<div class="status" id="status">Haetaan korkeusmallia...</div>
+
+<div class="bottom">
+  <div class="panel">
+    <div class="main" id="main">Valitse piste ja analysoi</div>
+    <div class="sub" id="sub">DEM-pohjainen katve piirretään kartalle.</div>
+    <div class="warn" id="rec">Analyysiradius 4 km, resoluutio 8 m.</div>
+  </div>
+
+  <div class="panel">
+    <div class="controls">
+      <button class="active" data-h="1.7">1.7 m</button>
+      <button data-h="5">5 m</button>
+      <button data-h="10">10 m</button>
+      <button data-h="20">20 m</button>
+      <button id="analyzeBtn">Analysoi</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/proj4@2.9.2/dist/proj4.js"></script>
+<script>
+const API = "bed0c8b5-f42c-49fe-af0a-52da582dd0aa";
+const ANALYSIS_RADIUS_M = 4000;
+const AZIMUTH_STEP_DEG = 2;
+const SAMPLE_STEP_M = 8;
+
+proj4.defs("EPSG:3067", "+proj=utm +zone=35 +ellps=GRS80 +units=m +no_defs");
+
+function to3067(latlng){
+  const p = proj4("EPSG:4326", "EPSG:3067", [latlng.lng, latlng.lat]);
+  return { E: p[0], N: p[1] };
+}
+function from3067(E, N){
+  const p = proj4("EPSG:3067", "EPSG:4326", [E, N]);
+  return L.latLng(p[1], p[0]);
+}
+
+const map = L.map("map", {
+  center:[60.17, 24.94],
+  zoom:13,
+  zoomControl:true
+});
+
+// Correct MML WMS hookup for Leaflet
+const mmlWms = L.tileLayer.wms(
+  "https://avoin-karttakuva.maanmittauslaitos.fi/avoin/wms",
+  {
+    layers:"maastokartta",
+    format:"image/png",
+    transparent:false,
+    version:"1.3.0",
+    attribution:"Maanmittauslaitos"
+  }
+);
+
+// Force api-key into every WMS tile request
+mmlWms.getTileUrl = function(coords){
+  const url = L.TileLayer.WMS.prototype.getTileUrl.call(this, coords);
+  return url + "&api-key=" + encodeURIComponent(API);
+};
+
+mmlWms.addTo(map);
+
+const marker = L.marker(map.getCenter(), {
+  draggable:true,
+  icon:L.divIcon({html:'<div class="poi"></div>', iconSize:[12,12], className:''})
+}).addTo(map);
+
+map.on("click", e => marker.setLatLng(e.latlng));
+
+let height = 1.7;
+let bearing = 180;
+
+const overlays = {
+  base: L.layerGroup().addTo(map),
+  visible: L.layerGroup().addTo(map),
+  blocked: L.layerGroup().addTo(map)
+};
+
+function clearAnalysis(){
+  overlays.base.clearLayers();
+  overlays.visible.clearLayers();
+  overlays.blocked.clearLayers();
+}
+
+function setNotice(msg){
+  const el = document.getElementById("notice");
+  if(msg){
+    el.textContent = msg;
+    el.style.display = "block";
+  } else {
+    el.style.display = "none";
+  }
+}
+function setStatus(msg){
+  const el = document.getElementById("status");
+  if(msg){
+    el.textContent = msg;
+    el.style.display = "block";
+  } else {
+    el.style.display = "none";
+  }
+}
+function setMain(msg){ document.getElementById("main").textContent = msg; }
+function setSub(msg){ document.getElementById("sub").textContent = msg; }
+function setRec(msg){ document.getElementById("rec").textContent = msg; }
+
+function degToMil(d){
+  let mil = Math.round((((d % 360) + 360) % 360) / 360 * 6400);
+  return mil === 6400 ? 0 : mil;
+}
+
+map.on("mousemove", e => {
+  const c = marker.getLatLng();
+  const dx = e.latlng.lng - c.lng;
+  const dy = e.latlng.lat - c.lat;
+  bearing = (Math.atan2(dx, dy) * 180 / Math.PI + 360) % 360;
+  document.getElementById("bearing").innerText = degToMil(bearing);
+});
+
+marker.on("dragend", () => {
+  clearAnalysis();
+  setMain("Piste siirretty");
+  setSub("Suorita analyysi uudelleen.");
+});
+
+document.querySelectorAll("[data-h]").forEach(b => {
+  b.onclick = () => {
+    height = Number(b.dataset.h);
+    document.querySelectorAll("[data-h]").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    clearAnalysis();
+    setMain("Korkeus vaihdettu");
+    setSub("Suorita analyysi uudelleen.");
+  };
+});
+
+// Better tile error handling
+let firstTileLoaded = false;
+mmlWms.on("tileload", () => {
+  firstTileLoaded = true;
+  setNotice("");
+});
+mmlWms.on("tileerror", () => {
+  if (!firstTileLoaded) {
+    setNotice("MML-kartta ei lataudu. Tarkista API-avain tai odota hetki ja päivitä sivu.");
+  }
+});
+
+async function fetchAsciiGrid(centerLatLng){
+  const c = to3067(centerLatLng);
+  const half = ANALYSIS_RADIUS_M;
+  const minE = Math.round(c.E - half);
+  const maxE = Math.round(c.E + half);
+  const minN = Math.round(c.N - half);
+  const maxN = Math.round(c.N + half);
+
+  const url = "https://avoin-karttakuva.maanmittauslaitos.fi/ortokuvat-ja-korkeusmallit/wcs/v2"
+    + "?service=WCS"
+    + "&version=2.0.1"
+    + "&request=GetCoverage"
+    + "&CoverageID=korkeusmalli_2m"
+    + `&SUBSET=E(${minE},${maxE})`
+    + `&SUBSET=N(${minN},${maxN})`
+    + "&format=text/plain"
+    + "&SCALEFACTOR=0.25"
+    + "&api-key=" + encodeURIComponent(API);
+
+  const res = await fetch(url, { mode:"cors" });
+  if(!res.ok){
+    throw new Error("WCS request failed: " + res.status);
+  }
+  return await res.text();
+}
+
+function parseAsciiGrid(text){
+  const lines = text.trim().split(/\r?\n/);
+  const header = {};
+  let i = 0;
+  for(; i < 6; i++){
+    const parts = lines[i].trim().split(/\s+/);
+    header[parts[0].toLowerCase()] = Number(parts[1]);
+  }
+  const ncols = header.ncols;
+  const nrows = header.nrows;
+  const xll = header.xllcorner ?? header.xllcenter;
+  const yll = header.yllcorner ?? header.yllcenter;
+  const cell = header.cellsize;
+  const nodata = header.nodata_value ?? -9999;
+
+  const data = new Float32Array(ncols * nrows);
+  let idx = 0;
+  for(let r = 0; r < nrows; r++){
+    const vals = lines[i + r].trim().split(/\s+/);
+    for(let c = 0; c < ncols; c++){
+      data[idx++] = Number(vals[c]);
+    }
+  }
+  return { ncols, nrows, xll, yll, cell, nodata, data };
+}
+
+function sampleGrid(grid, E, N){
+  const col = Math.floor((E - grid.xll) / grid.cell);
+  const rowFromBottom = Math.floor((N - grid.yll) / grid.cell);
+  const row = grid.nrows - 1 - rowFromBottom;
+  if(col < 0 || col >= grid.ncols || row < 0 || row >= grid.nrows) return null;
+  const v = grid.data[row * grid.ncols + col];
+  if(v === grid.nodata) return null;
+  return v;
+}
+
+function analyzeVisibility(centerLatLng, grid){
+  const center = to3067(centerLatLng);
+  const observerGround = sampleGrid(grid, center.E, center.N);
+  if(observerGround == null){
+    throw new Error("Observer point is outside DEM or no-data.");
+  }
+  const observerZ = observerGround + height;
+
+  const visiblePts = [];
+  let minBlocked = Infinity;
+
+  for(let az = 0; az < 360; az += AZIMUTH_STEP_DEG){
+    const azRad = az * Math.PI / 180;
+    let maxAngle = -Infinity;
+    let furthestVisible = null;
+
+    for(let d = SAMPLE_STEP_M; d <= ANALYSIS_RADIUS_M; d += SAMPLE_STEP_M){
+      const E = center.E + Math.sin(azRad) * d;
+      const N = center.N + Math.cos(azRad) * d;
+      const ground = sampleGrid(grid, E, N);
+      if(ground == null) break;
+
+      const angle = Math.atan2((ground - observerZ), d);
+      if(angle >= maxAngle){
+        maxAngle = angle;
+        furthestVisible = {E, N, d};
+      } else {
+        minBlocked = Math.min(minBlocked, d);
+        break;
+      }
+    }
+
+    if(furthestVisible){
+      visiblePts.push(from3067(furthestVisible.E, furthestVisible.N));
+    } else {
+      visiblePts.push(from3067(
+        center.E + Math.sin(azRad) * SAMPLE_STEP_M,
+        center.N + Math.cos(azRad) * SAMPLE_STEP_M
+      ));
+    }
+  }
+
+  return { visiblePts, minBlocked };
+}
+
+function drawAnalysis(centerLatLng, result){
+  clearAnalysis();
+
+  L.circle(centerLatLng, {
+    radius: ANALYSIS_RADIUS_M,
+    color: "#b65858",
+    weight: 1,
+    fillColor: "#b65858",
+    fillOpacity: 0.16
+  }).addTo(overlays.blocked);
+
+  L.polygon(result.visiblePts, {
+    color: "#49a86a",
+    weight: 1,
+    fillColor: "#49a86a",
+    fillOpacity: 0.28
+  }).addTo(overlays.visible);
+
+  L.circle(centerLatLng, {
+    radius: ANALYSIS_RADIUS_M,
+    color: "#d9e2ea",
+    weight: 1,
+    opacity: 0.4,
+    fill: false,
+    dashArray: "4 6"
+  }).addTo(overlays.base);
+}
+
+document.getElementById("analyzeBtn").onclick = async () => {
+  setNotice("");
+  clearAnalysis();
+  setStatus("Haetaan korkeusmallia...");
+  setMain("Analyysi käynnissä");
+  setSub("DEM ladataan Maanmittauslaitokselta.");
+  setRec("Tämä voi kestää muutaman sekunnin.");
+
+  try{
+    const ascii = await fetchAsciiGrid(marker.getLatLng());
+    setStatus("Lasketaan katvetta...");
+    const grid = parseAsciiGrid(ascii);
+    const result = analyzeVisibility(marker.getLatLng(), grid);
+    drawAnalysis(marker.getLatLng(), result);
+    setStatus("");
+
+    const dead = Number.isFinite(result.minBlocked) ? Math.round(result.minBlocked) : ANALYSIS_RADIUS_M;
+    setMain(dead < 500 ? "Näkyvyys rajoitettu" : "Näkyvyys kohtalainen");
+    setSub(`Katve alkaa noin ${dead} m jälkeen.`);
+    setRec(dead < 500 ? "Nosta korkeutta tai vaihda pistettä." : "Tarkista maastossa ennen päätöstä.");
+  } catch(err){
+    console.error(err);
+    setStatus("");
+    setNotice("DEM-analyysi epäonnistui. Tarkista API-avain tai MML-palvelun saatavuus.");
+    setMain("Analyysi epäonnistui");
+    setSub(String(err.message || err));
+    setRec("Päivitä sivu ja kokeile uudelleen.");
+  }
+};
+</script>
+</body>
+</html>
