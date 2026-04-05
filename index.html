@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Katve-</title>
+  <title>Katve- v0.3</title>
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <style>
@@ -161,6 +161,7 @@
 
     <div class="menu glass" id="menuPanel">
       <button id="newExerciseBtn">Luo uusi harjoite</button>
+      <button id="infoBtn">Info, käyttö ja disclaimerit</button>
       <button id="recenterMenuBtn">Keskitä arvioituun sijaintiin</button>
       <button id="toggleTilesBtn">Vaihda karttataso</button>
       <button id="testDroneBtn">Testaa droneuhka</button>
@@ -233,7 +234,7 @@
           <div class="pill warn" id="dronePhasePill">Vaihe 1 / Lähestyminen</div>
           <div class="pill" id="droneTimerPill">Odotusaika ei käynnissä</div>
         </div>
-        <div class="cta-row"><button class="action-btn secondary" id="droneAcknowledgeBtn">Ymmärretty</button></div>
+        <div class="stack"><div class="pill">Hälytys poistuu vasta, kun uhka loittonee.</div></div>
       </div>
     </div>
 
@@ -248,6 +249,23 @@
         <div class="cta-row"><button class="action-btn secondary" id="mineCloseBtn">Jatka</button></div>
       </div>
     </div>
+    <div class="screen" id="infoScreen">
+      <div class="card">
+        <h2>Mikä Katve- on?</h2>
+        <p>Katve- on suunnistus- ja liikkumisharjoittelun prototyyppi. Sovellus lisää reitille AO-alueen, tunnettuja ja piilossa olevia miinoitettuja alueita sekä droneuhkan, mutta ei johda käyttäjää tarkasti perille.</p>
+        <div class="stack">
+          <div class="pill good">Käyttö: 1) salli GPS 2) luo uusi harjoite 3) valitse vaikeus 4) aseta välipaikat ja maali 5) liiku ja reagoi uhkiin.</div>
+          <div class="pill warn">Sijaintitarkistus näyttää vain karkean sijainnin ja kuluttaa tarkistuksia.</div>
+          <div class="pill">Droneuhassa pysähdy ja odota, kunnes uhka poistuu. Miinoitetun alueen kohdalla muuta reittiä.</div>
+          <div class="pill danger">Disclaimer: tämä on harjoitus- ja prototyyppisovellus. Se ei korvaa koulutusta, johtamista, turvallisuusarviointia, virallisia karttoja tai todellista tilannekuvaa.</div>
+          <div class="pill">Selainilmoitukset voidaan pyytää käyttöön. Lukitusnäytön notifikaatiot riippuvat selaimesta, käyttöjärjestelmästä ja käyttäjän antamista ilmoitusluvista.</div>
+        </div>
+        <div class="cta-row">
+          <button class="action-btn secondary" id="closeInfoBtn">Sulje</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -301,7 +319,8 @@
       dronePhasePill: document.getElementById('dronePhasePill'),
       droneTimerPill: document.getElementById('droneTimerPill'),
       mineOverlay: document.getElementById('mineOverlay'),
-      mineMetersPill: document.getElementById('mineMetersPill')
+      mineMetersPill: document.getElementById('mineMetersPill'),
+      infoScreen: document.getElementById('infoScreen')
     };
 
     const map = L.map('map', { zoomControl: false, preferCanvas: true }).setView([62.24, 25.74], 13);
@@ -358,6 +377,12 @@
       const [lat, lng] = getImpreciseLatLng(state.exactLatLng);
       state.visibleLatLng = L.latLng(lat, lng);
       estimatedCircle.setLatLng(state.visibleLatLng);
+    }
+
+    function notifyUser(title, body) {
+      if (!('Notification' in window)) return;
+      if (Notification.permission !== 'granted') return;
+      try { new Notification(title, { body, tag: 'katve-alert' }); } catch (e) {}
     }
 
     function clearExerciseLayers() {
@@ -560,11 +585,12 @@
       state.droneActive = true;
       state.dronePhase = 1;
       refs.droneOverlay.classList.add('show');
+      notifyUser('Katve-: droneuhka', 'Mahdollinen droneuhka alueella. Vähennä liikettä.');
       updateDroneUI();
       clearInterval(state.droneInterval);
       state.droneInterval = setInterval(() => {
-        if (state.dronePhase === 1) state.dronePhase = 2;
-        else if (state.dronePhase === 2) { state.dronePhase = 3; state.droneCountdown = 60; }
+        if (state.dronePhase === 1) { state.dronePhase = 2; notifyUser('Katve-: drone lähellä', 'Pysähdy nyt. Liike voi paljastaa sinut.'); }
+        else if (state.dronePhase === 2) { state.dronePhase = 3; state.droneCountdown = 60; notifyUser('Katve-: uhka alueella', 'Pysy paikallasi kunnes uhka poistuu.'); }
         else if (state.dronePhase === 3) {
           state.droneCountdown -= 1;
           if (state.droneCountdown <= 0) { state.dronePhase = 4; state.droneCountdown = 8; }
@@ -582,7 +608,7 @@
       state.droneCountdown = 0;
       clearInterval(state.droneInterval);
       refs.droneOverlay.classList.remove('show');
-      if (safe) showToast('Drone loittonee. Voit jatkaa.', 'good');
+      if (safe) { showToast('Drone loittonee. Voit jatkaa.', 'good'); notifyUser('Katve-: uhka poistui', 'Drone loittonee. Liike voi jatkua.'); }
     }
 
     function updateDroneUI() {
