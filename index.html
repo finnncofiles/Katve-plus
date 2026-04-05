@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Katve- v0.3</title>
+  <title>Katve- v0.4</title>
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <style>
@@ -221,6 +221,7 @@
         </div>
         <div class="cta-row">
           <button class="action-btn secondary" id="cancelCreateBtn">Peruuta</button>
+          <button class="action-btn secondary" id="requestGpsBtn2">Pyydä GPS</button>
           <button class="action-btn" id="startPlacementBtn">Luo harjoite</button>
         </div>
       </div>
@@ -679,9 +680,10 @@
         refreshVisibleLocation();
         map.panTo(latlng);
       }
-      refs.gpsInfoPill.textContent = `GPS valmis: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+      const acc = pos.coords && pos.coords.accuracy ? `±${Math.round(pos.coords.accuracy)} m` : 'valmis';
+      refs.gpsInfoPill.textContent = `GPS valmis: ${acc}`;
       refs.gpsInfoPill.className = 'pill good';
-      refs.startInfoPill.textContent = `Aloitus: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+      refs.startInfoPill.textContent = `Aloitus: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)} (${acc})`; 
       refs.startInfoPill.className = 'pill good';
       if (prev) handleMovementEffects(prev, latlng);
       state.lastMovementPos = latlng;
