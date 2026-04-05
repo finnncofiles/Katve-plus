@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Katve-</title>
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    :root {
+      --bg: #0f1114;
+      --panel: rgba(10, 12, 15, 0.86);
+      --panel-2: rgba(18, 20, 24, 0.94);
+      --line: rgba(255,255,255,0.12);
+      --text: #eef2f5;
+      --muted: #aab4bc;
+      --good: #7cc08d;
+      --warn: #e5be61;
+      --danger: #cf5959;
+      --accent: #7eb9e6;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { overflow: hidden; }
+    #app, #map { width: 100%; height: 100%; }
+    #app { position: relative; }
+    #map { background: #1a1e23; }
+
+    .glass {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar {
+      position: absolute; top: max(12px, env(safe-area-inset-top)); left: 12px; right: 12px; z-index: 1000;
+      display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+      padding: 10px 12px; border-radius: 22px;
+    }
+    .icon-btn, .action-btn, select, .field {
+      border: 1px solid var(--line); border-radius: 16px; color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+    .icon-btn {
+      width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 700; cursor: pointer;
+    }
+    .mission { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .mission-title { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .mission-state { font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .zoom-controls {
+      position: absolute; left: 12px; top: 92px; z-index: 1000; display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .floating-status {
+      position: absolute; left: 12px; right: 12px; top: 92px; z-index: 995;
+      display: none; padding: 12px 14px; border-radius: 16px; font-size: 14px; font-weight: 700;
+    }
+    .floating-status.show { display: block; }
+
+    .bottombar {
+      position: absolute; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 1000;
+      padding: 12px; border-radius: 22px; display: grid; gap: 12px;
+    }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .stat { background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 14px; padding: 10px 8px; text-align: center; }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .stat-value { font-size: 17px; font-weight: 800; }
+    .action-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; }
+    .action-btn {
+      min-height: 54px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 17px; font-weight: 800; cursor: pointer;
+      background: rgba(126,185,230,0.12); border-color: rgba(126,185,230,0.4);
+    }
+    .action-btn.secondary {
+      background: rgba(255,255,255,0.05); min-width: 56px; padding: 0 14px; font-size: 15px; font-weight: 700;
+    }
+    .hint { font-size: 12px; color: var(--muted); text-align: center; }
+
+    .menu {
+      position: absolute; top: 76px; right: 12px; z-index: 1150; width: min(300px, calc(100vw - 24px));
+      padding: 10px; border-radius: 20px; display: none;
+    }
+    .menu.show { display: block; }
+    .menu button {
+      width: 100%; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text);
+      text-align: left; padding: 13px 14px; border-radius: 14px; margin: 4px 0; font: inherit; cursor: pointer;
+    }
+
+    .toast {
+      position: absolute; left: 50%; transform: translateX(-50%); top: 88px; z-index: 1100; min-width: 220px; max-width: calc(100vw - 32px);
+      background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; box-shadow: var(--shadow); display: none;
+      font-size: 14px; font-weight: 700; text-align: center;
+    }
+    .toast.show { display: block; }
+    .toast.warn { color: var(--warn); }
+    .toast.danger { color: #ffd4d4; }
+    .toast.good { color: #d8f5df; }
+
+    .screen {
+      position: absolute; inset: 0; z-index: 1200; display: none; align-items: center; justify-content: center; padding: 18px;
+      background: rgba(5,7,10,0.5); backdrop-filter: blur(4px);
+    }
+    .screen.show { display: flex; }
+
+    .card {
+      width: min(94vw, 540px); background: var(--panel-2); border: 1px solid var(--line); border-radius: 26px; box-shadow: var(--shadow); padding: 18px;
+    }
+    .card h1, .card h2 { margin: 0 0 8px; line-height: 1.1; }
+    .card h1 { font-size: 34px; }
+    .card h2 { font-size: 28px; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.45; }
+    .stack { display: grid; gap: 12px; margin-top: 18px; }
+    .field, select { width: 100%; min-height: 52px; padding: 0 14px; font: inherit; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pill {
+      padding: 12px 14px; font-size: 15px; font-weight: 700; border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,0.04);
+    }
+    .pill.warn { color: var(--warn); border-color: rgba(229,190,97,0.35); background: rgba(229,190,97,0.08); }
+    .pill.danger { color: #ffd4d4; border-color: rgba(207,89,89,0.45); background: rgba(207,89,89,0.12); }
+    .pill.good { color: #d8f5df; border-color: rgba(124,192,141,0.35); background: rgba(124,192,141,0.08); }
+    .cta-row { display: flex; gap: 10px; margin-top: 18px; }
+    .cta-row .action-btn { flex: 1; }
+
+    .leaflet-control-container { display: none; }
+    .known-mine-label, .wp-label, .end-label, .start-label, .hidden-label {
+      background: rgba(12,14,18,0.9); color: var(--text); border: 1px solid rgba(255,255,255,0.14); padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; box-shadow: var(--shadow);
+    }
+    .known-mine-label, .hidden-label { color: #ffd0d0; }
+
+    @media (max-width: 520px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .action-row { grid-template-columns: 1fr 1fr 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="map"></div>
+
+    <div class="topbar glass">
+      <button class="icon-btn" id="recenterBtn" title="Keskitä sijaintiin">⌖</button>
+      <div class="mission">
+        <div class="mission-title">KATVE-</div>
+        <div class="mission-state" id="missionState">Avaa valikosta uusi harjoite</div>
+      </div>
+      <button class="icon-btn" id="menuBtn" title="Valikko">≡</button>
+    </div>
+
+    <div class="floating-status glass" id="floatingStatus"></div>
+
+    <div class="zoom-controls">
+      <button class="icon-btn glass" id="zoomInBtn" title="Zoom +">+</button>
+      <button class="icon-btn glass" id="zoomOutBtn" title="Zoom -">−</button>
+    </div>
+
+    <div class="menu glass" id="menuPanel">
+      <button id="newExerciseBtn">Luo uusi harjoite</button>
+      <button id="recenterMenuBtn">Keskitä arvioituun sijaintiin</button>
+      <button id="toggleTilesBtn">Vaihda karttataso</button>
+      <button id="testDroneBtn">Testaa droneuhka</button>
+      <button id="closeMenuBtn">Sulje valikko</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="bottombar glass">
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Aika</div><div class="stat-value" id="timeStat">00:00</div></div>
+        <div class="stat"><div class="stat-label">Tarkistukset</div><div class="stat-value" id="checksStat">0</div></div>
+        <div class="stat"><div class="stat-label">Kuri</div><div class="stat-value" id="scoreStat">100</div></div>
+        <div class="stat"><div class="stat-label">Tila</div><div class="stat-value" id="statusStat">Valmis</div></div>
+      </div>
+      <div class="action-row">
+        <button class="action-btn" id="checkPosBtn">📍 Tarkista sijainti</button>
+        <button class="action-btn secondary" id="wpBtn">WP</button>
+        <button class="action-btn secondary" id="pauseBtn">⏸</button>
+      </div>
+      <div class="hint">Aloitus on aina nykyinen GPS-sijainti. Luo harjoite valikosta.</div>
+    </div>
+
+    <div class="screen show" id="homeScreen">
+      <div class="card">
+        <h1>Katve-</h1>
+        <p>Suunnistus ja liikkuminen uhan alla. Aloituspaikka tulee aina nykyisestä GPS-sijainnista.</p>
+        <div class="stack">
+          <div class="pill good" id="gpsInfoPill">Haetaan GPS-sijaintia...</div>
+          <div class="pill">Kartta tarvitsee verkkoyhteyden. GPS tarvitsee sijaintiluvan.</div>
+        </div>
+        <div class="cta-row">
+          <button class="action-btn" id="openCreateBtn">Luo uusi harjoite</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="createScreen">
+      <div class="card">
+        <h2>Luo uusi harjoite</h2>
+        <p>Valitse vaikeustaso ja välipisteiden määrä. Aloitus lukitaan nykyiseen GPS-sijaintiisi.</p>
+        <div class="stack">
+          <div class="row">
+            <select id="difficultySelect">
+              <option value="helppo">Helppo</option>
+              <option value="normaali" selected>Normaali</option>
+              <option value="vaikea">Vaikea</option>
+            </select>
+            <select id="wpCountSelect">
+              <option value="1">1 välipaikka</option>
+              <option value="2" selected>2 välipaikkaa</option>
+              <option value="3">3 välipaikkaa</option>
+            </select>
+          </div>
+          <div class="pill warn" id="startInfoPill">Aloitus: odottaa GPS-sijaintia</div>
+          <div class="pill">Seuraavaksi asetat kartalta välipaikat ja maalin napauttamalla karttaa.</div>
+        </div>
+        <div class="cta-row">
+          <button class="action-btn secondary" id="cancelCreateBtn">Peruuta</button>
+          <button class="action-btn" id="startPlacementBtn">Luo harjoite</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen" id="droneOverlay">
+      <div class="card">
+        <h2 id="droneTitle">Mahdollinen droneuhka</h2>
+        <p id="droneText">Vähennä liikettä ja valmistaudu pysähtymään.</p>
+        <div class="stack">
+          <div class="pill warn" id="dronePhasePill">Vaihe 1 / Lähestyminen</div>
+          <div class="pill" id="droneTimerPill">Odotusaika ei käynnissä</div>
+        </div>
+        <div class="cta-row"><button class="action-btn secondary" id="droneAcknowledgeBtn">Ymmärretty</button></div>
+      </div>
+    </div>
+
+    <div class="screen" id="mineOverlay">
+      <div class="card">
+        <h2>Kohtasit miinakentän</h2>
+        <p>Aiemmin tuntematon kenttä paljastui. Peräänny tai muuta reittiä. Yli 50 m kentän sisällä päättää harjoituksen.</p>
+        <div class="stack">
+          <div class="pill danger" id="mineMetersPill">0 m / 50 m kentässä</div>
+          <div class="pill warn">Kenttä on nyt merkitty kartalle</div>
+        </div>
+        <div class="cta-row"><button class="action-btn secondary" id="mineCloseBtn">Jatka</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    const state = {
+      startedAt: Date.now(),
+      exactLatLng: null,
+      visibleLatLng: null,
+      checksLeft: 0,
+      score: 100,
+      paused: false,
+      tileMode: 'topo',
+      difficulty: 'normaali',
+      waypointTargetCount: 2,
+      planningMode: false,
+      trainingReady: false,
+      droneActive: false,
+      dronePhase: 0,
+      droneCountdown: 0,
+      droneInterval: null,
+      hiddenMineTriggered: false,
+      metersInsideMine: 0,
+      lastMovementPos: null,
+      routePoints: [],
+      markers: [],
+      routeLine: null,
+      knownMines: [],
+      hiddenMineCoords: null,
+      hiddenMinePolygon: null,
+      gpsReady: false
+    };
+
+    const refs = {
+      missionState: document.getElementById('missionState'),
+      timeStat: document.getElementById('timeStat'),
+      checksStat: document.getElementById('checksStat'),
+      scoreStat: document.getElementById('scoreStat'),
+      statusStat: document.getElementById('statusStat'),
+      toast: document.getElementById('toast'),
+      menuPanel: document.getElementById('menuPanel'),
+      floatingStatus: document.getElementById('floatingStatus'),
+      homeScreen: document.getElementById('homeScreen'),
+      createScreen: document.getElementById('createScreen'),
+      gpsInfoPill: document.getElementById('gpsInfoPill'),
+      startInfoPill: document.getElementById('startInfoPill'),
+      difficultySelect: document.getElementById('difficultySelect'),
+      wpCountSelect: document.getElementById('wpCountSelect'),
+      droneOverlay: document.getElementById('droneOverlay'),
+      droneTitle: document.getElementById('droneTitle'),
+      droneText: document.getElementById('droneText'),
+      dronePhasePill: document.getElementById('dronePhasePill'),
+      droneTimerPill: document.getElementById('droneTimerPill'),
+      mineOverlay: document.getElementById('mineOverlay'),
+      mineMetersPill: document.getElementById('mineMetersPill')
+    };
+
+    const map = L.map('map', { zoomControl: false, preferCanvas: true }).setView([62.24, 25.74], 13);
+    const topo = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Tiles &copy; Esri' });
+
+    const estimatedCircle = L.circle([62.24, 25.74], {
+      radius: 130,
+      color: '#cfd9df',
+      weight: 2,
+      fillColor: '#8fb3c4',
+      fillOpacity: 0.14
+    }).addTo(map);
+
+    const gpsAnchor = L.circleMarker([62.24, 25.74], {
+      radius: 4,
+      color: '#ffffff',
+      weight: 2,
+      fillColor: '#ffffff',
+      fillOpacity: 1
+    }).addTo(map);
+    gpsAnchor.setStyle({ opacity: 0, fillOpacity: 0 });
+
+    function showToast(message, mode = '') {
+      refs.toast.textContent = message;
+      refs.toast.className = 'toast show';
+      if (mode) refs.toast.classList.add(mode);
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => refs.toast.className = 'toast', 2600);
+    }
+
+    function setMissionState(text) { refs.missionState.textContent = text; }
+    function setStatus(text) { refs.statusStat.textContent = text; }
+    function updateChecks() { refs.checksStat.textContent = state.checksLeft; }
+    function updateScore(delta = 0) { state.score = Math.max(0, state.score + delta); refs.scoreStat.textContent = state.score; }
+    function formatTime(ms) {
+      const s = Math.floor(ms / 1000);
+      return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    }
+    function updateTimer() { refs.timeStat.textContent = formatTime(Date.now() - state.startedAt); }
+
+    function showFloatingStatus(text) {
+      refs.floatingStatus.textContent = text;
+      refs.floatingStatus.classList.add('show', 'glass');
+    }
+    function hideFloatingStatus() { refs.floatingStatus.classList.remove('show'); }
+
+    function getImpreciseLatLng(latlng) {
+      return [latlng.lat + (Math.random() - 0.5) * 0.0016, latlng.lng + (Math.random() - 0.5) * 0.0024];
+    }
+
+    function refreshVisibleLocation() {
+      if (!state.exactLatLng) return;
+      const [lat, lng] = getImpreciseLatLng(state.exactLatLng);
+      state.visibleLatLng = L.latLng(lat, lng);
+      estimatedCircle.setLatLng(state.visibleLatLng);
+    }
+
+    function clearExerciseLayers() {
+      state.markers.forEach(m => map.removeLayer(m));
+      state.markers = [];
+      if (state.routeLine) { map.removeLayer(state.routeLine); state.routeLine = null; }
+      state.knownMines.forEach(m => map.removeLayer(m));
+      state.knownMines = [];
+      if (state.hiddenMinePolygon) { map.removeLayer(state.hiddenMinePolygon); state.hiddenMinePolygon = null; }
+      state.hiddenMineCoords = null;
+    }
+
+    function makeLabel(name, className) {
+      return { permanent: true, direction: 'top', className };
+    }
+
+    function addMarker(latlng, label, className = 'wp-label') {
+      const m = L.marker(latlng).addTo(map).bindTooltip(label, makeLabel(label, className));
+      state.markers.push(m);
+      return m;
+    }
+
+    function buildRouteLine() {
+      if (state.routeLine) map.removeLayer(state.routeLine);
+      state.routeLine = L.polyline(state.routePoints, {
+        color: '#7eb9e6', weight: 2, opacity: 0.45, dashArray: '6 10'
+      }).addTo(map);
+    }
+
+    function squareFromCenter(latlng, sizeMeters = 90) {
+      const dLat = sizeMeters / 111320;
+      const dLng = sizeMeters / (111320 * Math.cos(latlng.lat * Math.PI / 180));
+      return [
+        [latlng.lat + dLat, latlng.lng - dLng],
+        [latlng.lat + dLat, latlng.lng + dLng],
+        [latlng.lat - dLat, latlng.lng + dLng],
+        [latlng.lat - dLat, latlng.lng - dLng]
+      ];
+    }
+
+    function addKnownMine(centerLatLng) {
+      const poly = L.polygon(squareFromCenter(centerLatLng, 70), {
+        color: '#cf5959', weight: 2, fillColor: '#a52a2a', fillOpacity: 0.25
+      }).addTo(map);
+      poly.bindTooltip('Tunnettu miinakenttä', { permanent: true, direction: 'center', className: 'known-mine-label' });
+      state.knownMines.push(poly);
+    }
+
+    function generateHazards() {
+      state.knownMines.forEach(m => map.removeLayer(m));
+      state.knownMines = [];
+      if (state.hiddenMinePolygon) { map.removeLayer(state.hiddenMinePolygon); state.hiddenMinePolygon = null; }
+      state.hiddenMineCoords = null;
+      state.hiddenMineTriggered = false;
+      state.metersInsideMine = 0;
+
+      if (state.routePoints.length < 2) return;
+
+      const difficultyFactor = state.difficulty === 'helppo' ? 1 : state.difficulty === 'normaali' ? 2 : 3;
+      const routeForHazards = state.routePoints.slice(1, -1);
+      const mineCount = Math.min(difficultyFactor, Math.max(1, routeForHazards.length));
+
+      for (let i = 0; i < mineCount; i++) {
+        const src = routeForHazards[i % routeForHazards.length] || state.routePoints[1];
+        addKnownMine(L.latLng(src.lat + 0.0012, src.lng - 0.0015));
+      }
+
+      const hiddenSource = state.routePoints[Math.min(1, state.routePoints.length - 1)] || state.routePoints[0];
+      const hiddenCenter = L.latLng(hiddenSource.lat + 0.0022, hiddenSource.lng + 0.0016);
+      state.hiddenMineCoords = squareFromCenter(hiddenCenter, 65);
+    }
+
+    function finalizeExercise() {
+      hideFloatingStatus();
+      refs.createScreen.classList.remove('show');
+      refs.homeScreen.classList.remove('show');
+      state.planningMode = false;
+      state.trainingReady = true;
+      state.startedAt = Date.now();
+      state.checksLeft = state.difficulty === 'helppo' ? 4 : state.difficulty === 'normaali' ? 3 : 2;
+      updateChecks();
+      updateScore(100 - state.score); // normalize to 100
+      state.score = 100;
+      refs.scoreStat.textContent = state.score;
+      setStatus('Liikkeellä');
+      setMissionState('WP1 aktiivinen');
+      buildRouteLine();
+      generateHazards();
+      map.fitBounds(L.latLngBounds(state.routePoints), { padding: [50, 50] });
+      showToast('Harjoite luotu', 'good');
+    }
+
+    function beginPlacement() {
+      if (!state.gpsReady || !state.exactLatLng) {
+        showToast('GPS-sijainti ei ole vielä valmis', 'warn');
+        return;
+      }
+      clearExerciseLayers();
+      state.routePoints = [state.exactLatLng];
+      state.planningMode = true;
+      refs.createScreen.classList.remove('show');
+      refs.homeScreen.classList.remove('show');
+      addMarker(state.exactLatLng, 'START', 'start-label');
+      showFloatingStatus(`Aseta WP1 kartalta. Tarvitaan ${state.waypointTargetCount} välipaikkaa ja lopuksi maali.`);
+      setMissionState('Suunnitellaan harjoitetta');
+      setStatus('Suunnittelu');
+      map.panTo(state.exactLatLng);
+    }
+
+    function handlePlanningTap(latlng) {
+      const currentPlacedWps = state.routePoints.length - 1;
+      if (currentPlacedWps < state.waypointTargetCount) {
+        state.routePoints.push(latlng);
+        addMarker(latlng, `WP${currentPlacedWps + 1}`, 'wp-label');
+        if (currentPlacedWps + 1 < state.waypointTargetCount) {
+          showFloatingStatus(`Aseta WP${currentPlacedWps + 2}. Lopuksi aseta maali.`);
+        } else {
+          showFloatingStatus('Aseta seuraavaksi maali kartalta.');
+        }
+      } else {
+        state.routePoints.push(latlng);
+        addMarker(latlng, 'END', 'end-label');
+        finalizeExercise();
+      }
+      buildRouteLine();
+    }
+
+    function requestPositionCheck() {
+      if (!state.trainingReady) return showToast('Luo ensin harjoite', 'warn');
+      if (state.checksLeft <= 0) return showToast('Ei tarkistuksia jäljellä', 'danger');
+      if (!state.exactLatLng) return showToast('GPS-sijainti ei vielä saatavilla', 'warn');
+      state.checksLeft -= 1;
+      updateChecks();
+      updateScore(-(5 + (3 - Math.min(state.checksLeft, 3)) * 0));
+      refreshVisibleLocation();
+      map.panTo(state.visibleLatLng, { animate: true });
+      setStatus('Paikannus');
+      showToast('Karkea sijainti päivitettiin', 'good');
+      setTimeout(() => setStatus(state.paused ? 'Tauko' : 'Liikkeellä'), 1800);
+    }
+
+    function checkWaypoint() {
+      if (!state.trainingReady || !state.exactLatLng) return showToast('Luo ensin harjoite', 'warn');
+      const currentWpIndex = Math.min(state.routePoints.length - 1, state.markers.length - 1);
+      if (state.markers.length < 2) return;
+      const targetIndex = [...state.markers].findIndex((m, idx) => idx > 0 && !m._reached);
+      if (targetIndex === -1) return showToast('Kaikki pisteet jo kuitattu', 'good');
+      const marker = state.markers[targetIndex];
+      const dist = state.exactLatLng.distanceTo(marker.getLatLng());
+      if (dist <= 80) {
+        marker._reached = true;
+        if (targetIndex === state.markers.length - 1) {
+          setMissionState('Maali saavutettu');
+          setStatus('Valmis');
+          updateScore(10);
+          showToast('Maali saavutettu', 'good');
+        } else {
+          setMissionState(`WP${targetIndex + 1} saavutettu, seuraava aktiivinen`);
+          updateScore(5);
+          showToast(`WP${targetIndex} saavutettu`, 'good');
+        }
+      } else {
+        showToast(`Et ole vielä pisteellä (${Math.round(dist)} m)`, 'warn');
+      }
+    }
+
+    function pointInsidePolygon(latlng, polygonCoords) {
+      const x = latlng.lng, y = latlng.lat;
+      let inside = false;
+      for (let i = 0, j = polygonCoords.length - 1; i < polygonCoords.length; j = i++) {
+        const xi = polygonCoords[i][1], yi = polygonCoords[i][0];
+        const xj = polygonCoords[j][1], yj = polygonCoords[j][0];
+        const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-12) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function revealHiddenMine() {
+      if (!state.hiddenMineCoords || state.hiddenMinePolygon) return;
+      state.hiddenMinePolygon = L.polygon(state.hiddenMineCoords, {
+        color: '#cf5959', weight: 2, fillColor: '#a52a2a', fillOpacity: 0.3
+      }).addTo(map);
+      state.hiddenMinePolygon.bindTooltip('Paljastunut miinakenttä', { permanent: true, direction: 'center', className: 'hidden-label' });
+    }
+
+    function triggerMineEncounter() {
+      if (state.hiddenMineTriggered || !state.hiddenMineCoords) return;
+      state.hiddenMineTriggered = true;
+      state.metersInsideMine = 0;
+      revealHiddenMine();
+      updateScore(-10);
+      refs.mineMetersPill.textContent = '0 m / 50 m kentässä';
+      refs.mineOverlay.classList.add('show');
+      showToast('Kohtasit miinakentän', 'danger');
+    }
+
+    function startDroneSequence() {
+      if (state.droneActive || !state.trainingReady) return;
+      state.droneActive = true;
+      state.dronePhase = 1;
+      refs.droneOverlay.classList.add('show');
+      updateDroneUI();
+      clearInterval(state.droneInterval);
+      state.droneInterval = setInterval(() => {
+        if (state.dronePhase === 1) state.dronePhase = 2;
+        else if (state.dronePhase === 2) { state.dronePhase = 3; state.droneCountdown = 60; }
+        else if (state.dronePhase === 3) {
+          state.droneCountdown -= 1;
+          if (state.droneCountdown <= 0) { state.dronePhase = 4; state.droneCountdown = 8; }
+        } else if (state.dronePhase === 4) {
+          state.droneCountdown -= 1;
+          if (state.droneCountdown <= 0) { stopDroneSequence(true); return; }
+        }
+        updateDroneUI();
+      }, 1000);
+    }
+
+    function stopDroneSequence(safe = false) {
+      state.droneActive = false;
+      state.dronePhase = 0;
+      state.droneCountdown = 0;
+      clearInterval(state.droneInterval);
+      refs.droneOverlay.classList.remove('show');
+      if (safe) showToast('Drone loittonee. Voit jatkaa.', 'good');
+    }
+
+    function updateDroneUI() {
+      if (state.dronePhase === 1) {
+        refs.droneTitle.textContent = 'Mahdollinen droneuhka';
+        refs.droneText.textContent = 'Vähennä liikettä ja valmistaudu pysähtymään.';
+        refs.dronePhasePill.className = 'pill warn';
+        refs.dronePhasePill.textContent = 'Vaihe 1 / Lähestyminen';
+        refs.droneTimerPill.className = 'pill';
+        refs.droneTimerPill.textContent = 'Uhka ei vielä päällä';
+      } else if (state.dronePhase === 2) {
+        refs.droneTitle.textContent = 'Drone lähellä';
+        refs.droneText.textContent = 'Pysähdy nyt. Liike voi paljastaa sinut.';
+        refs.dronePhasePill.className = 'pill warn';
+        refs.dronePhasePill.textContent = 'Vaihe 2 / Kriittinen';
+        refs.droneTimerPill.className = 'pill danger';
+        refs.droneTimerPill.textContent = 'Liike on riskialtista';
+      } else if (state.dronePhase === 3) {
+        refs.droneTitle.textContent = 'Uhka alueella';
+        refs.droneText.textContent = 'Pysy paikallasi. Drone on päällä mutta ei havaitse, jos et liiku.';
+        refs.dronePhasePill.className = 'pill danger';
+        refs.dronePhasePill.textContent = 'Vaihe 3 / Päällä';
+        refs.droneTimerPill.className = 'pill warn';
+        refs.droneTimerPill.textContent = `${state.droneCountdown} s odotusta jäljellä`;
+      } else if (state.dronePhase === 4) {
+        refs.droneTitle.textContent = 'Drone loittonee';
+        refs.droneText.textContent = 'Uhka vähenee. Valmistaudu jatkamaan liikettä.';
+        refs.dronePhasePill.className = 'pill good';
+        refs.dronePhasePill.textContent = 'Vaihe 4 / Poistuminen';
+        refs.droneTimerPill.className = 'pill good';
+        refs.droneTimerPill.textContent = `${state.droneCountdown} s`;
+      }
+    }
+
+    function handleMovementEffects(prevPos, newPos) {
+      if (state.droneActive && state.dronePhase >= 2) {
+        const moved = prevPos.distanceTo(newPos);
+        if (moved > 3) {
+          updateScore(state.dronePhase === 3 ? -15 : -8);
+          showToast(state.dronePhase === 3 ? 'Liike paljasti sijaintisi' : 'Drone havaitsi liikettä', 'danger');
+          refs.droneTimerPill.className = 'pill danger';
+          refs.droneTimerPill.textContent = 'Liike havaittu';
+        }
+      }
+      if (state.hiddenMineCoords) {
+        if (!state.hiddenMineTriggered && pointInsidePolygon(newPos, state.hiddenMineCoords)) triggerMineEncounter();
+        if (state.hiddenMineTriggered && pointInsidePolygon(newPos, state.hiddenMineCoords)) {
+          state.metersInsideMine += prevPos.distanceTo(newPos);
+          refs.mineMetersPill.textContent = `${Math.round(state.metersInsideMine)} m / 50 m kentässä`;
+          if (state.metersInsideMine >= 50) {
+            updateScore(-50);
+            setMissionState('Harjoitus epäonnistui');
+            setStatus('KIA');
+            showToast('Miinakenttä ylitetty yli 50 m. KIA.', 'danger');
+          }
+        }
+      }
+    }
+
+    function onLocationSuccess(pos) {
+      const latlng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+      const prev = state.exactLatLng;
+      state.exactLatLng = latlng;
+      state.gpsReady = true;
+      gpsAnchor.setLatLng(latlng);
+      gpsAnchor.setStyle({ opacity: 0, fillOpacity: 0 });
+      if (!state.visibleLatLng) {
+        refreshVisibleLocation();
+        map.panTo(latlng);
+      }
+      refs.gpsInfoPill.textContent = `GPS valmis: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+      refs.gpsInfoPill.className = 'pill good';
+      refs.startInfoPill.textContent = `Aloitus: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+      refs.startInfoPill.className = 'pill good';
+      if (prev) handleMovementEffects(prev, latlng);
+      state.lastMovementPos = latlng;
+    }
+
+    function onLocationError(err) {
+      refs.gpsInfoPill.textContent = `GPS ei valmis: ${err.message || 'tuntematon virhe'}`;
+      refs.gpsInfoPill.className = 'pill danger';
+      refs.startInfoPill.textContent = 'Aloitus: GPS puuttuu';
+      refs.startInfoPill.className = 'pill danger';
+      showToast('GPS-virhe', 'danger');
+    }
+
+    function startLocationTracking() {
+      if (!('geolocation' in navigator)) {
+        onLocationError({ message: 'Paikannus ei ole käytettävissä tässä laitteessa' });
+        return;
+      }
+      navigator.geolocation.watchPosition(onLocationSuccess, onLocationError, {
+        enableHighAccuracy: true,
+        maximumAge: 2000,
+        timeout: 10000
+      });
+    }
+
+    function toggleTiles() {
+      if (state.tileMode === 'topo') {
+        map.removeLayer(topo);
+        satellite.addTo(map);
+        state.tileMode = 'satellite';
+        showToast('Karttataso: satelliitti', 'good');
+      } else {
+        map.removeLayer(satellite);
+        topo.addTo(map);
+        state.tileMode = 'topo';
+        showToast('Karttataso: topo', 'good');
+      }
+    }
+
+    document.getElementById('zoomInBtn').addEventListener('click', () => map.zoomIn());
+    document.getElementById('zoomOutBtn').addEventListener('click', () => map.zoomOut());
+    document.getElementById('recenterBtn').addEventListener('click', () => {
+      if (state.visibleLatLng) map.panTo(state.visibleLatLng, { animate: true });
+      else if (state.exactLatLng) map.panTo(state.exactLatLng, { animate: true });
+      else showToast('GPS-sijainti ei vielä valmis', 'warn');
+    });
+    document.getElementById('recenterMenuBtn').addEventListener('click', () => {
+      refs.menuPanel.classList.remove('show');
+      if (state.visibleLatLng) map.panTo(state.visibleLatLng, { animate: true });
+      else showToast('Arvioitua sijaintia ei vielä ole', 'warn');
+    });
+    document.getElementById('menuBtn').addEventListener('click', () => refs.menuPanel.classList.toggle('show'));
+    document.getElementById('closeMenuBtn').addEventListener('click', () => refs.menuPanel.classList.remove('show'));
+    document.getElementById('toggleTilesBtn').addEventListener('click', () => { refs.menuPanel.classList.remove('show'); toggleTiles(); });
+    document.getElementById('openCreateBtn').addEventListener('click', () => {
+      refs.homeScreen.classList.remove('show');
+      refs.createScreen.classList.add('show');
+    });
+    document.getElementById('newExerciseBtn').addEventListener('click', () => {
+      refs.menuPanel.classList.remove('show');
+      refs.homeScreen.classList.remove('show');
+      refs.createScreen.classList.add('show');
+    });
+    document.getElementById('cancelCreateBtn').addEventListener('click', () => {
+      refs.createScreen.classList.remove('show');
+      refs.homeScreen.classList.add('show');
+    });
+    document.getElementById('startPlacementBtn').addEventListener('click', () => {
+      state.difficulty = refs.difficultySelect.value;
+      state.waypointTargetCount = Number(refs.wpCountSelect.value);
+      beginPlacement();
+    });
+    document.getElementById('checkPosBtn').addEventListener('click', requestPositionCheck);
+    document.getElementById('wpBtn').addEventListener('click', checkWaypoint);
+    document.getElementById('pauseBtn').addEventListener('click', () => {
+      state.paused = !state.paused;
+      setStatus(state.paused ? 'Tauko' : 'Liikkeellä');
+      showToast(state.paused ? 'Harjoitus tauolla' : 'Harjoitus jatkuu', 'warn');
+    });
+    document.getElementById('testDroneBtn').addEventListener('click', () => {
+      refs.menuPanel.classList.remove('show');
+      startDroneSequence();
+    });
+    document.getElementById('droneAcknowledgeBtn').addEventListener('click', () => {
+      refs.droneOverlay.classList.remove('show');
+      setTimeout(() => { if (state.droneActive) refs.droneOverlay.classList.add('show'); }, 1200);
+    });
+    document.getElementById('mineCloseBtn').addEventListener('click', () => refs.mineOverlay.classList.remove('show'));
+
+    map.on('click', (e) => {
+      refs.menuPanel.classList.remove('show');
+      if (state.planningMode) handlePlanningTap(e.latlng);
+    });
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+    updateChecks();
+    updateScore(0);
+    startLocationTracking();
+    showToast('Salli GPS ja verkkoyhteys', 'good');
+  </script>
+</body>
+</html>
