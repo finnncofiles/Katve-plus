@@ -210,7 +210,7 @@ const copy={
     notifAllowed:'Ilmoitukset: sallittu', notifBlocked:'Ilmoitukset: estetty', notifNotYet:'Ilmoitukset: ei vielä sallittu',
     startWaiting:'Aloitus: odottaa GPS-sijaintia', startReady:'Aloitus:',
     droneLow:'Matala', droneMedium:'Keski', droneHigh:'Korkea',
-    menuNew:'Luo uusi harjoite', menuGps:'Pyydä GPS uudelleen', menuNotif:'Salli ilmoitukset', menuInfo:'Info ja disclaimerit', menuTiles:'Vaihda karttataso', menuTestWarn:'Testaa dronevaroitus', menuTestAlert:'Testaa dronehälytys', menuClose:'Sulje valikko',
+    menuNew:'Luo uusi harjoite', menuGps:'Pyydä GPS uudelleen', menuNotif:'Salli ilmoitukset', menuInfo:'Info ja disclaimerit', menuTiles:'Vaihda karttataso', menuTestWarn:'Testaa dronevaroitus', menuTestAlert:'Testaa dronehälytys', menuShowThreats:'Näytä kaikki uhkat 10 s', menuClose:'Sulje valikko',
     placing:'Napauta karttaa asettaaksesi ', placeWp:'välipaikan', placeEnd:'maalin', planning:'Suunnitellaan harjoitetta', wpActive:'WP1 aktiivinen', finishActive:'Maali aktiivinen',
     warningTitle:'⚠️ DRONEVAROITUS', warningText:'Vähennä liikettä ja varaudu suojautumaan.', alertTitle:'⚠️ DRONEHÄLYTYS', alertText:'Hakeudu heti suojaan. Liike voi paljastaa sinut.', overheadTitle:'Uhka alueella', overheadText:'Pysy paikallasi. Drone on päällä mutta ei havaitse, jos et liiku.', leavingText:'Drone loittonee. Voit pian jatkaa.',
     phaseWarn:'Vaihe 1 / Varoitus', phaseAlert:'Vaihe 2 / Hälytys', phaseOver:'Vaihe 3 / Päällä', phaseLeave:'Vaihe 4 / Poistuminen',
@@ -237,7 +237,7 @@ const copy={
     notifAllowed:'Notifications: allowed', notifBlocked:'Notifications: blocked', notifNotYet:'Notifications: not yet allowed',
     startWaiting:'Start: waiting for GPS position', startReady:'Start:',
     droneLow:'Low', droneMedium:'Medium', droneHigh:'High',
-    menuNew:'Create new exercise', menuGps:'Request GPS again', menuNotif:'Allow notifications', menuInfo:'Info and disclaimers', menuTiles:'Switch map layer', menuTestWarn:'Test drone warning', menuTestAlert:'Test drone alert', menuClose:'Close menu',
+    menuNew:'Create new exercise', menuGps:'Request GPS again', menuNotif:'Allow notifications', menuInfo:'Info and disclaimers', menuTiles:'Switch map layer', menuTestWarn:'Test drone warning', menuTestAlert:'Test drone alert', menuShowThreats:'Show all threats 10 s', menuClose:'Close menu',
     placing:'Tap the map to place ', placeWp:'waypoint', placeEnd:'the end point', planning:'Planning exercise', wpActive:'WP1 active', finishActive:'Finish active',
     warningTitle:'⚠️ DRONE WARNING', warningText:'Reduce movement and prepare to take cover.', alertTitle:'⚠️ DRONE ALERT', alertText:'Take cover immediately. Movement may reveal you.', overheadTitle:'Threat in area', overheadText:'Stay still. The drone is overhead but will not detect you if you do not move.', leavingText:'Drone moving away. You can continue soon.',
     phaseWarn:'Phase 1 / Warning', phaseAlert:'Phase 2 / Alert', phaseOver:'Phase 3 / Overhead', phaseLeave:'Phase 4 / Leaving',
@@ -247,7 +247,7 @@ const copy={
     toastGpsAllowed:'GPS request sent', toastNotifAllowed:'Notifications allowed', toastNotifDenied:'Notifications not allowed', toastNoNotifSupport:'Browser does not support notifications', toastCreateFirst:'Create an exercise first', toastPlacementDone:'Exercise ready. Press Start exercise.', toastStarted:'Exercise started', toastPaused:'Exercise paused', toastResumed:'Exercise resumed', toastNeedWp:'You are not yet at the waypoint', toastMine:'You entered a mined area', toastDroneLeave:'Drone moving away. You can continue.', toastWpReached:'Waypoint reached', toastFinishReached:'Finish reached', gpsSensorNote:'GPS is the app primary sensor'
   }
 };
-const S={lang:localStorage.getItem('katve-lang')||'fi', gpsReady:false, gpsAccuracy:null, exact:null, visible:null, watchId:null, startMarker:null, wpMarkers:[], endMarker:null, routeLine:null, aoRect:null, aoLabel:null, knownMines:[], hiddenMines:[], hiddenTriggered:false, mineMeters:0, lastLatLng:null, started:false, paused:false, startTime:0, pausedAt:0, pausedAccum:0, checks:3, exposure:0, difficulty:'normal', wpTarget:2, placementMode:false, placementStage:0, droneCount:0, droneThreat:'low', droneActive:false, dronePhase:0, droneCountdown:0, droneInterval:null, droneCooldownUntil:0, posCheckGraceUntil:0, droneCorridors:[], tileMode:'sat', lastFixTs:0, recoverTimer:null};
+const S={lang:localStorage.getItem('katve-lang')||'fi', gpsReady:false, gpsAccuracy:null, exact:null, visible:null, watchId:null, startMarker:null, wpMarkers:[], endMarker:null, routeLine:null, aoRect:null, aoLabel:null, knownMines:[], hiddenMines:[], hiddenTriggered:false, mineMeters:0, lastLatLng:null, started:false, paused:false, startTime:0, pausedAt:0, pausedAccum:0, checks:3, exposure:0, difficulty:'normal', wpTarget:2, placementMode:false, placementStage:0, droneCount:0, droneThreat:'low', droneActive:false, dronePhase:0, droneCountdown:0, droneInterval:null, droneCooldownUntil:0, posCheckGraceUntil:0, droneCorridors:[], tileMode:'sat', lastFixTs:0, recoverTimer:null, previewLayers:[], previewTimer:null};
 const map=L.map('map',{zoomControl:false,preferCanvas:true}).setView([62.24,25.74],12);
 const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'}).addTo(map);
 const topo=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
@@ -271,7 +271,7 @@ function applyTexts(){
   g('cancelCreateBtn').textContent=t('cancel'); g('requestGpsMiniBtn').textContent=t('requestGpsShort'); g('startPlacementBtn').textContent=t('createExercise');
   g('infoTitle').textContent=t('infoTitle'); g('infoDesc').textContent=t('infoDesc'); g('infoUsage').textContent=t('infoUsage'); g('infoCheck').textContent=t('infoCheck'); g('infoThreat').textContent=t('infoThreat'); g('infoDisclaimer').textContent=t('infoDisclaimer'); g('closeInfoBtn').textContent=t('close');
   g('checkPosBtn').textContent=t('checkPosition'); g('wpBtn').textContent=t('waypoint');
-  g('newExerciseBtn').textContent=t('menuNew'); g('requestGpsMenuBtn').textContent=t('menuGps'); g('requestNotifMenuBtn').textContent=t('menuNotif'); g('infoBtn').textContent=t('menuInfo'); g('toggleTilesBtn').textContent=t('menuTiles'); g('testDroneWarningBtn').textContent=t('menuTestWarn'); g('testDroneAlertBtn').textContent=t('menuTestAlert'); g('closeMenuBtn').textContent=t('menuClose');
+  g('newExerciseBtn').textContent=t('menuNew'); g('requestGpsMenuBtn').textContent=t('menuGps'); g('requestNotifMenuBtn').textContent=t('menuNotif'); g('infoBtn').textContent=t('menuInfo'); g('toggleTilesBtn').textContent=t('menuTiles'); g('testDroneWarningBtn').textContent=t('menuTestWarn'); g('testDroneAlertBtn').textContent=t('menuTestAlert'); g('showThreatsBtn').textContent=t('menuShowThreats'); g('closeMenuBtn').textContent=t('menuClose');
   updateStartPauseBtn(); updateGpsPill(); updateNotifPill(); updateBottomHint(); updateDroneThreatStat();
   if(S.droneActive) updateDroneUI();
 }
@@ -399,6 +399,23 @@ function updateTime(){ if(!S.started){ R.time.textContent='--:--'; return; } con
 function autoCheckProgress(ll){ if(!S.started||S.paused||!hasExercise()) return; if(S.wpMarkers.length){ const d=ll.distanceTo(S.wpMarkers[0].getLatLng()); if(d<=80){ const done=S.wpMarkers.shift(); map.removeLayer(done); playCue('wp'); toast(t('toastWpReached'),'good'); if(S.wpMarkers.length===0) R.mission.textContent=t('finishActive'); } return; } if(S.endMarker){ const dEnd=ll.distanceTo(S.endMarker.getLatLng()); if(dEnd<=80){ playCue('finish'); toast(t('toastFinishReached'),'good'); S.paused=true; S.pausedAt=Date.now(); updateStartPauseBtn(); } } }
 function checkWp(){ if(!S.started||!S.exact) return; autoCheckProgress(S.exact); }
 function setTileMode(){ if(S.tileMode==='sat'){ map.removeLayer(sat); topo.addTo(map); S.tileMode='topo'; } else { map.removeLayer(topo); sat.addTo(map); S.tileMode='sat'; } }
+
+function clearThreatPreview(){
+  if(S.previewTimer){ clearTimeout(S.previewTimer); S.previewTimer=null; }
+  S.previewLayers.forEach(layer=>map.removeLayer(layer));
+  S.previewLayers=[];
+}
+function showAllThreatsPreview(){
+  if(!hasExercise()) return toast(t('toastCreateFirst'),'warn');
+  clearThreatPreview();
+  S.hiddenMines.forEach(item=>{ const poly=L.polygon(item.coords,{color:'#ff8c8c',weight:2,fillColor:'#b64545',fillOpacity:.22,dashArray:'8 8'}).addTo(map); S.previewLayers.push(poly); });
+  S.droneCorridors.forEach(zone=>{
+    if(zone.type==='ring'){ const c=L.circle(zone.center,{radius:zone.radius,color:'#e5be61',weight:2,fillOpacity:0, dashArray:'10 8'}).addTo(map); S.previewLayers.push(c); }
+    if(zone.type==='corridor'){ const pl=L.polyline(zone.points,{color:'#e5be61',weight:3,opacity:.9,dashArray:'10 8'}).addTo(map); S.previewLayers.push(pl); }
+  });
+  toast(S.lang==='en'?'All threats visible for 10 seconds':'Kaikki uhkat näkyvissä 10 s','warn');
+  S.previewTimer=setTimeout(clearThreatPreview,10000);
+}
 // events
 map.on('click',e=>{ if(R.menu.classList.contains('show')) R.menu.classList.remove('show'); handleMapPlacement(e); });
 g('zoomIn').onclick=()=>map.zoomIn(); g('zoomOut').onclick=()=>map.zoomOut(); g('recenterBtn').onclick=()=>{ if(S.exact) map.panTo(S.exact,{animate:true}); };
