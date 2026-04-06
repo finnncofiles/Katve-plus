@@ -1,4 +1,4 @@
-const CACHE_NAME = 'katveplus-v10';
+const CACHE_NAME = 'katve-v07';
 const APP_ASSETS = [
   './',
   './index.html',

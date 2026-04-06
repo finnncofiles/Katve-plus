@@ -1,9 +1,9 @@
 {
-  "name": "Katve+",
-  "short_name": "Katve+",
+  "name": "Katve-",
+  "short_name": "Katve-",
   "description": "Suunnistus ja liikkuminen uhan alla. PWA-prototyyppi.",
-  "start_url": "/Katve-plus/",
-  "scope": "/Katve-plus/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f1114",
   "theme_color": "#0f1114",
