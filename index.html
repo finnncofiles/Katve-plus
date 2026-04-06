@@ -205,7 +205,7 @@ const copy={
     infoUsage:'Käyttö: salli GPS, salli ilmoitukset, luo harjoite, aseta välipaikat ja maali, liiku ja reagoi uhkiin. Altistuminen kasvaa virheistä, liikkeestä hälytyksen aikana ja sijaintitarkistuksista.',
     infoCheck:'Sijaintitarkistus näyttää vain karkean sijainnin ja kuluttaa tarkistuksia.', infoThreat:'Droneuhassa pysähdy ja odota, kunnes uhka poistuu. Miinoitetun alueen kohdalla muuta reittiä.',
     infoDisclaimer:'Disclaimer: tämä ei korvaa koulutusta, turvallisuusarviointia, virallisia karttoja tai todellista tilannekuvaa.', close:'Sulje',
-    checkPosition:'📍 Tarkista sijainti', waypoint:'WP', startBtn:'▶', pauseBtn:'⏸', startExercise:'Aloita harjoite',
+    checkPosition:'📍 Tarkista sijainti', waypoint:'GPS', startBtn:'▶', pauseBtn:'⏸', startExercise:'Aloita harjoite',
     gpsWaiting:'Odottaa ensimmäistä GPS-fixiä...', gpsMissing:'GPS ei valmis: Sijaintilupa puuttuu', gpsNoFix:'GPS ei valmis: GPS-fixiä ei saatu vielä', gpsUnknown:'GPS ei valmis: tuntematon virhe', gpsReady:'GPS valmis',
     notifAllowed:'Ilmoitukset: sallittu', notifBlocked:'Ilmoitukset: estetty', notifNotYet:'Ilmoitukset: ei vielä sallittu',
     startWaiting:'Aloitus: odottaa GPS-sijaintia', startReady:'Aloitus:',
@@ -217,7 +217,7 @@ const copy={
     slowBeep:'Hidas piippaus käynnissä', fastBeep:'Nopea piippaus käynnissä', intenseBeep:'Tiheä piippaus käynnissä', alertClears:'Hälytys poistuu vasta, kun uhka loittonee.',
     mineTitle:'Kohtasit miinoitetun alueen', mineDesc:'Piilossa ollut alue paljastui. Peräänny tai muuta reittiä. Yli 50 m kentän sisällä päättää harjoituksen.', mineMarked:'Kenttä on nyt merkitty kartalle', continue:'Jatka',
     knownMine:'Tunnettu miinoitettu alue', ao:'AO',
-    toastGpsAllowed:'GPS-pyyntö lähetetty', toastNotifAllowed:'Ilmoitukset sallittu', toastNotifDenied:'Ilmoituksia ei sallittu', toastNoNotifSupport:'Selain ei tue ilmoituksia', toastCreateFirst:'Luo ensin harjoite', toastPlacementDone:'Harjoite valmis. Paina Aloita harjoite.', toastStarted:'Harjoite käynnissä', toastPaused:'Harjoite tauolla', toastResumed:'Harjoite jatkuu', toastNeedWp:'Et ole vielä waypointilla', toastMine:'Kohtasit miinoitetun alueen', toastDroneLeave:'Drone loittonee. Voit jatkaa.'
+    toastGpsAllowed:'GPS-pyyntö lähetetty', toastNotifAllowed:'Ilmoitukset sallittu', toastNotifDenied:'Ilmoituksia ei sallittu', toastNoNotifSupport:'Selain ei tue ilmoituksia', toastCreateFirst:'Luo ensin harjoite', toastPlacementDone:'Harjoite valmis. Paina Aloita harjoite.', toastStarted:'Harjoite käynnissä', toastPaused:'Harjoite tauolla', toastResumed:'Harjoite jatkuu', toastNeedWp:'Et ole vielä waypointilla', toastMine:'Kohtasit miinoitetun alueen', toastDroneLeave:'Drone loittonee. Voit jatkaa.', toastWpReached:'WP saavutettu', toastFinishReached:'Maali saavutettu', gpsSensorNote:'GPS on sovelluksen tärkein sensori'
   },
   en:{
     missionDefault:'Open the menu to create an exercise', timeLabel:'Time', checksLabel:'Checks', expoLabel:'Exposure', droneLabel:'Drone threat',
@@ -232,7 +232,7 @@ const copy={
     infoUsage:'Use: allow GPS, allow notifications, create an exercise, place waypoints and end point, move and react to threats. Exposure increases from mistakes, movement during alerts and position checks.',
     infoCheck:'Position check only shows an approximate location and consumes checks.', infoThreat:'During a drone threat, stop and wait until the threat passes. If you encounter a mined area, reroute.',
     infoDisclaimer:'Disclaimer: this does not replace training, safety assessment, official maps or a real situational picture.', close:'Close',
-    checkPosition:'📍 Check position', waypoint:'WP', startBtn:'▶', pauseBtn:'⏸', startExercise:'Start exercise',
+    checkPosition:'📍 Check position', waypoint:'GPS', startBtn:'▶', pauseBtn:'⏸', startExercise:'Start exercise',
     gpsWaiting:'Waiting for first GPS fix...', gpsMissing:'GPS not ready: Location permission missing', gpsNoFix:'GPS not ready: No GPS fix yet', gpsUnknown:'GPS not ready: Unknown error', gpsReady:'GPS ready',
     notifAllowed:'Notifications: allowed', notifBlocked:'Notifications: blocked', notifNotYet:'Notifications: not yet allowed',
     startWaiting:'Start: waiting for GPS position', startReady:'Start:',
@@ -244,10 +244,10 @@ const copy={
     slowBeep:'Slow beeping active', fastBeep:'Fast beeping active', intenseBeep:'Intense beeping active', alertClears:'The alert clears only after the threat moves away.',
     mineTitle:'You entered a mined area', mineDesc:'A hidden area was revealed. Pull back or change route. More than 50 m inside the area ends the exercise.', mineMarked:'The area is now marked on the map', continue:'Continue',
     knownMine:'Known mined area', ao:'AO',
-    toastGpsAllowed:'GPS request sent', toastNotifAllowed:'Notifications allowed', toastNotifDenied:'Notifications not allowed', toastNoNotifSupport:'Browser does not support notifications', toastCreateFirst:'Create an exercise first', toastPlacementDone:'Exercise ready. Press Start exercise.', toastStarted:'Exercise started', toastPaused:'Exercise paused', toastResumed:'Exercise resumed', toastNeedWp:'You are not yet at the waypoint', toastMine:'You entered a mined area', toastDroneLeave:'Drone moving away. You can continue.'
+    toastGpsAllowed:'GPS request sent', toastNotifAllowed:'Notifications allowed', toastNotifDenied:'Notifications not allowed', toastNoNotifSupport:'Browser does not support notifications', toastCreateFirst:'Create an exercise first', toastPlacementDone:'Exercise ready. Press Start exercise.', toastStarted:'Exercise started', toastPaused:'Exercise paused', toastResumed:'Exercise resumed', toastNeedWp:'You are not yet at the waypoint', toastMine:'You entered a mined area', toastDroneLeave:'Drone moving away. You can continue.', toastWpReached:'Waypoint reached', toastFinishReached:'Finish reached', gpsSensorNote:'GPS is the app primary sensor'
   }
 };
-const S={lang:localStorage.getItem('katve-lang')||'fi', gpsReady:false, gpsAccuracy:null, exact:null, visible:null, watchId:null, startMarker:null, wpMarkers:[], endMarker:null, routeLine:null, aoRect:null, aoLabel:null, knownMines:[], hiddenMines:[], hiddenTriggered:false, mineMeters:0, lastLatLng:null, started:false, paused:false, startTime:0, pausedAt:0, pausedAccum:0, checks:3, exposure:0, difficulty:'normal', wpTarget:2, placementMode:false, placementStage:0, droneCount:0, droneThreat:'low', droneActive:false, dronePhase:0, droneCountdown:0, droneInterval:null, droneCooldownUntil:0, posCheckGraceUntil:0, droneCorridors:[], tileMode:'sat'};
+const S={lang:localStorage.getItem('katve-lang')||'fi', gpsReady:false, gpsAccuracy:null, exact:null, visible:null, watchId:null, startMarker:null, wpMarkers:[], endMarker:null, routeLine:null, aoRect:null, aoLabel:null, knownMines:[], hiddenMines:[], hiddenTriggered:false, mineMeters:0, lastLatLng:null, started:false, paused:false, startTime:0, pausedAt:0, pausedAccum:0, checks:3, exposure:0, difficulty:'normal', wpTarget:2, placementMode:false, placementStage:0, droneCount:0, droneThreat:'low', droneActive:false, dronePhase:0, droneCountdown:0, droneInterval:null, droneCooldownUntil:0, posCheckGraceUntil:0, droneCorridors:[], tileMode:'sat', lastFixTs:0, recoverTimer:null};
 const map=L.map('map',{zoomControl:false,preferCanvas:true}).setView([62.24,25.74],12);
 const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'}).addTo(map);
 const topo=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
@@ -289,6 +289,7 @@ function toast(msg,mode=''){ R.toast.textContent=msg; R.toast.className='toast s
 function ensureAudio(){ if(audioCtx) return; try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
 function startBeepLoop(period=1200,duration=120,freq=800){ stopBeepLoop(); if(!audioCtx) ensureAudio(); if(!audioCtx) return; const beep=()=>{ const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value=freq; g.gain.value=.03; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>{o.stop();},duration); } ; beep(); beepTimer=setInterval(beep,period); }
 function stopBeepLoop(){ if(beepTimer){ clearInterval(beepTimer); beepTimer=null; }}
+function playCue(type='wp'){ if(!audioCtx) ensureAudio(); if(!audioCtx) return; const seq=type==='finish'?[720,920,1120]:[780,960]; let i=0; const play=()=>{ if(i>=seq.length) return; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type='sine'; o.frequency.value=seq[i++]; g.gain.value=.035; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>{o.stop(); play();},130); }; play(); }
 function notifyUser(title,body){ if(!('Notification' in window) || Notification.permission!=='granted') return; try{ new Notification(title,{body,icon:'icon-192.png'}); }catch(e){} }
 function requestNotifications(){ if(!('Notification' in window)) return toast(t('toastNoNotifSupport'),'danger'); Notification.requestPermission().then(p=>{updateNotifPill(); toast(p==='granted'?t('toastNotifAllowed'):t('toastNotifDenied'),p==='granted'?'good':'warn');}); }
 function updateNotifPill(){ const p=('Notification' in window)?Notification.permission:'denied'; R.notifInfo.className='pill '+(p==='granted'?'good':'warn'); R.notifInfo.textContent=p==='granted'?t('notifAllowed'):(p==='denied'?t('notifBlocked'):t('notifNotYet')); }
@@ -298,10 +299,9 @@ function updateGpsPill(errorType=''){ if(S.gpsReady && S.exact){ R.gpsInfo.class
  else if(errorType==='nofix'){R.gpsInfo.textContent=t('gpsNoFix'); R.startInfo.textContent=t('gpsNoFix');}
  else if(errorType==='unknown'){R.gpsInfo.textContent=t('gpsUnknown'); R.startInfo.textContent=t('gpsUnknown');}
  else setGpsWaiting(); }
-function requestGpsFix(){ if(!('geolocation' in navigator)){ updateGpsPill('unknown'); return; }
- navigator.geolocation.getCurrentPosition(gpsSuccess,gpsError,{enableHighAccuracy:true,maximumAge:1000,timeout:12000}); toast(t('toastGpsAllowed'),'good'); }
-function startGps(){ if(!('geolocation' in navigator)){ updateGpsPill('unknown'); return; } setGpsWaiting(); if(S.watchId!==null) navigator.geolocation.clearWatch(S.watchId); S.watchId=navigator.geolocation.watchPosition(gpsSuccess,gpsError,{enableHighAccuracy:true,maximumAge:2000,timeout:12000}); setTimeout(()=>{ if(!S.gpsReady) requestGpsFix(); },3000); }
-function gpsSuccess(pos){ const ll=L.latLng(pos.coords.latitude,pos.coords.longitude); S.exact=ll; S.gpsAccuracy=pos.coords.accuracy||0; S.gpsReady=true; exactMarker.setLatLng(ll).setStyle({opacity:0,fillOpacity:0}); if(!S.visible){ S.visible=offsetLatLng(ll); estCircle.setLatLng(S.visible); } updateGpsPill(); if(!hasExercise()) map.panTo(ll,{animate:true}); if(S.started && !S.paused && S.lastLatLng){ handleDroneMovement(S.lastLatLng,ll); handleHiddenMines(S.lastLatLng,ll); } S.lastLatLng=ll; }
+function requestGpsFix(){ if(!('geolocation' in navigator)){ updateGpsPill('unknown'); return; } if(S.watchId!==null) navigator.geolocation.clearWatch(S.watchId); navigator.geolocation.getCurrentPosition(gpsSuccess,gpsError,{enableHighAccuracy:true,maximumAge:1000,timeout:12000}); S.watchId=navigator.geolocation.watchPosition(gpsSuccess,gpsError,{enableHighAccuracy:true,maximumAge:1500,timeout:12000}); toast(t('toastGpsAllowed'),'good'); }
+function startGps(){ if(!('geolocation' in navigator)){ updateGpsPill('unknown'); return; } setGpsWaiting(); if(S.watchId!==null) navigator.geolocation.clearWatch(S.watchId); S.watchId=navigator.geolocation.watchPosition(gpsSuccess,gpsError,{enableHighAccuracy:true,maximumAge:1500,timeout:12000}); setTimeout(()=>{ if(!S.gpsReady) requestGpsFix(); },3000); if(S.recoverTimer) clearInterval(S.recoverTimer); S.recoverTimer=setInterval(()=>{ const stale=Date.now()-(S.lastFixTs||0); if(document.visibilityState==='visible' && (!S.lastFixTs || stale>15000)) requestGpsFix(); },15000); }
+function gpsSuccess(pos){ const ll=L.latLng(pos.coords.latitude,pos.coords.longitude); S.exact=ll; S.gpsAccuracy=pos.coords.accuracy||0; S.gpsReady=true; S.lastFixTs=Date.now(); exactMarker.setLatLng(ll).setStyle({opacity:0,fillOpacity:0}); if(!S.visible){ S.visible=offsetLatLng(ll); estCircle.setLatLng(S.visible); } updateGpsPill(); if(!hasExercise()) map.panTo(ll,{animate:true}); if(S.started && !S.paused && S.lastLatLng){ handleDroneMovement(S.lastLatLng,ll); handleHiddenMines(S.lastLatLng,ll); autoCheckProgress(ll); } S.lastLatLng=ll; }
 function gpsError(err){ S.gpsReady=false; if(err && err.code===1) updateGpsPill('missing'); else if(err && err.code===3) updateGpsPill('nofix'); else updateGpsPill('unknown'); }
 function offsetLatLng(ll){ return L.latLng(ll.lat+(Math.random()-.5)*.0012,ll.lng+(Math.random()-.5)*.002); }
 function checkPosition(){ if(S.checks<=0) return toast(S.lang==='en'?'No checks left':'Ei tarkistuksia jäljellä','danger'); if(!S.exact) return toast(S.lang==='en'?'GPS not ready':'GPS ei valmis','warn'); S.checks-=1; S.posCheckGraceUntil=Date.now()+8000; S.visible=offsetLatLng(S.exact); estCircle.setLatLng(S.visible); map.panTo(S.visible,{animate:true}); addExposure(5); updateChecksExposure(); }
@@ -317,6 +317,32 @@ function createAO(pts){ const bounds=L.latLngBounds(pts); const padLat=1000/1113
 function randomBetween(a,b){ return a + Math.random()*(b-a); }
 function makeMinePoly(center,sizeM=180,angle=Math.random()*Math.PI){ const latScale=1/111320, lngScale=1/(111320*Math.cos(center.lat*Math.PI/180)||1); const w=sizeM*randomBetween(.5,1.1), h=sizeM*randomBetween(.4,.9); const pts=[]; for(let i=0;i<6;i++){ const theta=angle + i*(Math.PI*2/6) + randomBetween(-.2,.2); const r=(i%2? w:h)*randomBetween(.55,1); pts.push([center.lat + Math.sin(theta)*r*latScale, center.lng + Math.cos(theta)*r*lngScale]); } return pts; }
 function distToSegmentM(p,a,b){ const P=map.project(p,map.getZoom()), A=map.project(a,map.getZoom()), B=map.project(b,map.getZoom()); const ABx=B.x-A.x, ABy=B.y-A.y; const t=Math.max(0,Math.min(1,((P.x-A.x)*ABx+(P.y-A.y)*ABy)/((ABx*ABx+ABy*ABy)||1))); const X=A.x+t*ABx, Y=A.y+t*ABy; return map.distance(p,map.unproject(L.point(X,Y),map.getZoom())); }
+function interpolateRouteData(pts,fraction){
+  const segLens=[]; let total=0;
+  for(let i=0;i<pts.length-1;i++){ const len=pts[i].distanceTo(pts[i+1]); segLens.push(len); total+=len; }
+  let target=total*Math.max(0,Math.min(1,fraction));
+  for(let i=0;i<segLens.length;i++){
+    if(target<=segLens[i] || i===segLens.length-1){
+      const a=pts[i], b=pts[i+1]; const f=segLens[i] ? target/segLens[i] : 0;
+      return {point:L.latLng(a.lat+(b.lat-a.lat)*f,a.lng+(b.lng-a.lng)*f), a, b};
+    }
+    target-=segLens[i];
+  }
+  return {point:pts[0], a:pts[0], b:pts[1]||pts[0]};
+}
+function offsetPerpendicular(data, meters, side=1){
+  const lat=data.point.lat; const cos=Math.cos(lat*Math.PI/180)||1;
+  const east=(data.b.lng-data.a.lng)*111320*cos; const north=(data.b.lat-data.a.lat)*111320;
+  const len=Math.sqrt(east*east+north*north)||1;
+  const perpEast=side*(-north/len); const perpNorth=side*(east/len);
+  return L.latLng(data.point.lat+(perpNorth*meters)/111320, data.point.lng+(perpEast*meters)/(111320*cos));
+}
+function makeCrossingCorridor(routePts,f1,f2,widthMeters=140){
+  const d1=interpolateRouteData(routePts,f1), d2=interpolateRouteData(routePts,f2);
+  const left1=offsetPerpendicular(d1,widthMeters,-1), right1=offsetPerpendicular(d1,widthMeters,1);
+  const right2=offsetPerpendicular(d2,widthMeters,1), left2=offsetPerpendicular(d2,widthMeters,-1);
+  return {type:'corridor', width:widthMeters, points:[left1,right1,right2,left2]};
+}
 function pointInPoly(ll,poly){ const x=ll.lng,y=ll.lat; let inside=false; for(let i=0,j=poly.length-1;i<poly.length;j=i++){ const xi=poly[i][1],yi=poly[i][0],xj=poly[j][1],yj=poly[j][0]; const intersect=((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/((yj-yi)||1e-12)+xi); if(intersect) inside=!inside; } return inside; }
 function validMineCenter(ll,pts){ for(const p of pts){ if(map.distance(ll,p)<220) return false; } return true; }
 function generateHazards(pts){ const coords=pts; // forced known mine 60% between WP1 and WP2 if possible
@@ -327,15 +353,39 @@ function generateHazards(pts){ const coords=pts; // forced known mine 60% betwee
 function addKnownMine(center,size){ const polyCoords=makeMinePoly(center,size); const poly=L.polygon(polyCoords,{color:'#cf5959',weight:2,fillColor:'#a52a2a',fillOpacity:.32}).addTo(map); poly.bindTooltip(t('knownMine'),{permanent:true,direction:'center',className:'known-mine-label'}); S.knownMines.push({poly,coords:polyCoords}); }
 function addHiddenMine(center,size){ S.hiddenMines.push({coords:makeMinePoly(center,size),poly:null,revealed:false}); }
 function revealHiddenMine(item){ if(item.revealed) return; item.revealed=true; item.poly=L.polygon(item.coords,{color:'#cf5959',weight:2,fillColor:'#a52a2a',fillOpacity:.28}).addTo(map); item.poly.bindTooltip(t('knownMine'),{permanent:true,direction:'center',className:'known-mine-label'}); }
-function generateDroneCorridors(pts){ const n=S.difficulty==='easy'?1:(S.difficulty==='normal'?2:3); S.droneCount=n; S.droneThreat=n===1?'low':(n===2?'medium':'high'); if(!S.aoRect) return; const b=S.aoRect.getBounds(); S.droneCorridors=[]; for(let i=0;i<n;i++){ const vertical=Math.random()>.5; if(vertical){ const lng=randomBetween(b.getWest(),b.getEast()); S.droneCorridors.push({type:'v',lng,halfWidth:0.0025}); } else { const lat=randomBetween(b.getSouth(),b.getNorth()); S.droneCorridors.push({type:'h',lat,halfWidth:0.0018}); } } }
-function nearDroneCorridor(ll){ return S.droneCorridors.some(c=> c.type==='v' ? Math.abs(ll.lng-c.lng)<c.halfWidth : Math.abs(ll.lat-c.lat)<c.halfWidth); }
-function maybeTriggerDrone(ll){ if(!S.started||S.paused||S.droneActive) return; if(Date.now()<S.droneCooldownUntil) return; if(Date.now()<S.posCheckGraceUntil) return; if(!nearDroneCorridor(ll)) return; const chance=S.difficulty==='easy'?.005:(S.difficulty==='normal'?.012:.02); if(Math.random()<chance){ const initial=Math.random()<0.62?'warning':'alert'; startDroneEvent(initial); } }
+function generateDroneCorridors(pts){
+  S.droneCorridors=[];
+  if(S.difficulty==='easy'){
+    S.droneCorridors.push(makeCrossingCorridor(pts,0.28,0.72,130));
+    S.droneCorridors.push({type:'ring', center:interpolateRouteData(pts,0.52).point, radius:170});
+  } else if(S.difficulty==='normal'){
+    S.droneCorridors.push(makeCrossingCorridor(pts,0.22,0.68,140));
+    S.droneCorridors.push(makeCrossingCorridor(pts,0.34,0.82,120));
+    S.droneCorridors.push({type:'ring', center:interpolateRouteData(pts,0.58).point, radius:190});
+  } else {
+    S.droneCorridors.push(makeCrossingCorridor(pts,0.16,0.56,150));
+    S.droneCorridors.push(makeCrossingCorridor(pts,0.28,0.72,140));
+    S.droneCorridors.push(makeCrossingCorridor(pts,0.40,0.88,130));
+    S.droneCorridors.push({type:'ring', center:interpolateRouteData(pts,0.38).point, radius:180});
+    S.droneCorridors.push({type:'ring', center:interpolateRouteData(pts,0.72).point, radius:210});
+  }
+  S.droneCount=S.droneCorridors.length;
+  S.droneThreat=S.difficulty==='easy'?'low':(S.difficulty==='normal'?'medium':'high');
+}
+function nearDroneCorridor(ll){ return S.droneCorridors.some(c=>{
+  if(c.type==='ring') return ll.distanceTo(c.center)<=c.radius;
+  if(c.type==='corridor'){
+    for(let i=0;i<c.points.length-1;i++){ if(distToSegmentM(ll,c.points[i],c.points[i+1])<=c.width) return true; }
+  }
+  return false;
+}); }
+function maybeTriggerDrone(ll){ if(!S.started||S.paused||S.droneActive) return; if(Date.now()<S.droneCooldownUntil) return; if(Date.now()<S.posCheckGraceUntil) return; if(!nearDroneCorridor(ll)) return; const chance=S.difficulty==='easy'?.004:(S.difficulty==='normal'?.011:.024); if(Math.random()<chance){ const initial=Math.random()<(S.difficulty==='hard'?0.45:0.62)?'warning':'alert'; startDroneEvent(initial); } }
 function startDroneEvent(initial='warning'){ if(S.droneActive) return; S.droneActive=true; S.dronePhase=(initial==='alert'?2:1); if(S.dronePhase===1){ S.droneCountdown=(S.difficulty==='easy'?14:(S.difficulty==='normal'?12:9)); } else { S.droneCountdown=(S.difficulty==='easy'?10:(S.difficulty==='normal'?8:7)); } showScreen(R.droneOverlay); updateDroneUI(); if(S.dronePhase===1){ startBeepLoop(1300,110,760); notifyUser(t('warningTitle'),t('warningText')); } else { startBeepLoop(420,90,900); notifyUser(t('alertTitle'),t('alertText')); } S.droneInterval=setInterval(()=>{ if(S.dronePhase===1){ S.droneCountdown--; if(S.droneCountdown<=0){ if(Math.random()<0.5){ stopDrone(true); } else { S.dronePhase=2; S.droneCountdown=(S.difficulty==='easy'?10:(S.difficulty==='normal'?8:7)); updateDroneUI(); stopBeepLoop(); startBeepLoop(420,90,900); notifyUser(t('alertTitle'),t('alertText')); } } else updateDroneUI(); }
  else if(S.dronePhase===2){ S.droneCountdown--; if(S.droneCountdown<=0){ if(Math.random()<0.4){ S.dronePhase=3; S.droneCountdown=(S.difficulty==='easy'?28:(S.difficulty==='normal'?32:36)); updateDroneUI(); stopBeepLoop(); startBeepLoop(170,55,1050); } else { stopDrone(true); } } else updateDroneUI(); }
  else if(S.dronePhase===3){ S.droneCountdown--; if(S.droneCountdown<=0){ S.dronePhase=4; S.droneCountdown=8; updateDroneUI(); stopBeepLoop(); startBeepLoop(700,70,700); notifyUser(t('alertTitle'),t('leavingText')); } else updateDroneUI(); }
  else if(S.dronePhase===4){ S.droneCountdown--; if(S.droneCountdown<=0){ stopDrone(true); } else updateDroneUI(); }
  },1000); }
-function stopDrone(safe=false){ S.droneActive=false; clearInterval(S.droneInterval); S.droneInterval=null; stopBeepLoop(); showScreen(null); S.droneCooldownUntil=Date.now()+45000; if(safe){ notifyUser('Katve+',t('toastDroneLeave')); toast(t('toastDroneLeave'),'good'); } }
+function stopDrone(safe=false){ S.droneActive=false; clearInterval(S.droneInterval); S.droneInterval=null; stopBeepLoop(); showScreen(null); S.droneCooldownUntil=Date.now()+(S.difficulty==='hard'?15000:(S.difficulty==='normal'?30000:45000)); if(safe){ notifyUser('Katve+',t('toastDroneLeave')); toast(t('toastDroneLeave'),'good'); } }
 function updateDroneUI(){ if(S.dronePhase===1){ R.droneTitle.textContent=t('warningTitle'); R.droneText.textContent=t('warningText'); R.dronePhase.textContent=t('phaseWarn'); R.droneTimer.textContent=t('slowBeep'); R.droneFoot.textContent=t('alertClears'); }
  else if(S.dronePhase===2){ R.droneTitle.textContent=t('alertTitle'); R.droneText.textContent=t('alertText'); R.dronePhase.textContent=t('phaseAlert'); R.droneTimer.textContent=t('fastBeep'); R.droneFoot.textContent=t('alertClears'); }
  else if(S.dronePhase===3){ R.droneTitle.textContent=t('overheadTitle'); R.droneText.textContent=t('overheadText'); R.dronePhase.textContent=t('phaseOver'); R.droneTimer.textContent=`${S.droneCountdown} s`; R.droneFoot.textContent=t('intenseBeep'); }
@@ -346,7 +396,8 @@ function startExercise(){ if(!hasExercise()) return toast(t('toastCreateFirst'),
  if(S.started) return; S.started=true; S.startTime=Date.now(); S.pausedAccum=0; S.paused=false; updateStartPauseBtn(); updateBottomHint(); R.mission.textContent=t('wpActive'); toast(t('toastStarted'),'good'); }
 function pauseExercise(){ if(!S.started||S.paused) return; S.paused=true; S.pausedAt=Date.now(); updateStartPauseBtn(); updateBottomHint(); toast(t('toastPaused'),'warn'); }
 function updateTime(){ if(!S.started){ R.time.textContent='--:--'; return; } const ms=(S.paused?S.pausedAt:Date.now())-S.startTime-S.pausedAccum; const sec=Math.max(0,Math.floor(ms/1000)); const mm=String(Math.floor(sec/60)).padStart(2,'0'); const ss=String(sec%60).padStart(2,'0'); R.time.textContent=`${mm}:${ss}`; }
-function checkWp(){ if(!S.started||!S.exact||S.wpMarkers.length===0) return; const target=(S.wpMarkers[0]||S.endMarker).getLatLng(); const d=S.exact.distanceTo(target); if(d>80) return toast(`${t('toastNeedWp')} (${Math.round(d)} m)`,'warn'); if(S.wpMarkers.length){ const done=S.wpMarkers.shift(); map.removeLayer(done); if(S.wpMarkers.length===0) R.mission.textContent=t('finishActive'); toast('WP ok','good'); } else { toast('Done','good'); } }
+function autoCheckProgress(ll){ if(!S.started||S.paused||!hasExercise()) return; if(S.wpMarkers.length){ const d=ll.distanceTo(S.wpMarkers[0].getLatLng()); if(d<=80){ const done=S.wpMarkers.shift(); map.removeLayer(done); playCue('wp'); toast(t('toastWpReached'),'good'); if(S.wpMarkers.length===0) R.mission.textContent=t('finishActive'); } return; } if(S.endMarker){ const dEnd=ll.distanceTo(S.endMarker.getLatLng()); if(dEnd<=80){ playCue('finish'); toast(t('toastFinishReached'),'good'); S.paused=true; S.pausedAt=Date.now(); updateStartPauseBtn(); } } }
+function checkWp(){ if(!S.started||!S.exact) return; autoCheckProgress(S.exact); }
 function setTileMode(){ if(S.tileMode==='sat'){ map.removeLayer(sat); topo.addTo(map); S.tileMode='topo'; } else { map.removeLayer(topo); sat.addTo(map); S.tileMode='sat'; } }
 // events
 map.on('click',e=>{ if(R.menu.classList.contains('show')) R.menu.classList.remove('show'); handleMapPlacement(e); });
@@ -357,9 +408,11 @@ g('requestGpsBtn').onclick=requestGpsFix; g('requestGpsMiniBtn').onclick=request
 g('requestNotifBtn').onclick=requestNotifications; g('requestNotifMenuBtn').onclick=()=>{ R.menu.classList.remove('show'); requestNotifications(); };
 g('openCreateBtn').onclick=()=>showScreen(R.create); g('newExerciseBtn').onclick=()=>{R.menu.classList.remove('show'); showScreen(R.create);} ; g('cancelCreateBtn').onclick=()=>showScreen(R.home); g('infoBtn').onclick=()=>{R.menu.classList.remove('show'); showScreen(R.info);} ; g('closeInfoBtn').onclick=()=>showScreen(R.home);
 g('startPlacementBtn').onclick=()=>beginPlacement(); g('toggleTilesBtn').onclick=()=>{R.menu.classList.remove('show'); setTileMode();};
-g('checkPosBtn').onclick=checkPosition; g('wpBtn').onclick=checkWp; g('startPauseBtn').onclick=()=>{ if(!hasExercise() || !S.started || S.paused) startExercise(); else pauseExercise(); };
+g('checkPosBtn').onclick=checkPosition; g('wpBtn').onclick=requestGpsFix; g('startPauseBtn').onclick=()=>{ if(!hasExercise() || !S.started || S.paused) startExercise(); else pauseExercise(); };
 g('testDroneWarningBtn').onclick=()=>{R.menu.classList.remove('show'); startDroneEvent('warning');}; g('testDroneAlertBtn').onclick=()=>{R.menu.classList.remove('show'); startDroneEvent('alert');};
 g('mineCloseBtn').onclick=()=>showScreen(null);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') requestGpsFix(); });
+window.addEventListener('pageshow',()=>requestGpsFix());
 // init
 updateChecksExposure(); applyTexts(); startGps(); updateNotifPill(); setInterval(updateTime,1000); if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
 </script>
